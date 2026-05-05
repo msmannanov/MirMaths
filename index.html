@@ -1,92 +1,152 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kg">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Онлайн Тест - ЦООМО</title>
-    <!-- Тышкы CSS файлын туташтыруу -->
-    <link rel="stylesheet" href="style.css">
+    <title>Билим Платформасы</title>
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="manifest" href="manifest.json">
+
+    <script>
+        // Service Workerди каттоо (бирок жаңыланганын текшерүү менен)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('PWA ийгиликтүү катталды!', reg.scope);
+                        // Жаңы версия болсо, аны дароо активдештирүү
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('Жаңы версия табылды, сураныч баракчаны жаңылаңыз.');
+                                }
+                            };
+                        };
+                    })
+                    .catch(err => console.log('Каттоодо ката кетти:', err));
+            });
+        }
+    </script>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5351/5351486.png">
 </head>
 <body>
 
 <header>
-    <div class="logo">
-        <a href="index.html">
-            <strong>ЦООМО / CEATM</strong>
-        </a>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button onclick="toggleDarkMode()" id="dark-mode-btn" style="padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc;">🌙 Караңгы режим</button>
+            
+            <div class="header-right">
+                <a href="profile.html" style="text-decoration: none; background: #4facfe; color: white; padding: 5px 15px; border-radius: 5px; margin-right: 10px; font-weight: bold;">👤 Профиль</a>
+                <button onclick="changeLang('kg')">KG</button>
+                <button onclick="changeLang('ru')">RU</button>
+            </div>
+        </div>
+        
+        <h1 data-key="main-title">БИЛИМ ПЛАТФОРМАСЫ</h1>
+        <p data-key="sub-title">Сапаттуу билим — ийгиликтин ачкычы</p>
+        
+        <nav>
+            <a href="matematika.html" class="nav-btn-link" data-key="nav-math">Математика</a>
+            <a href="taryh.html" class="nav-btn-link" data-key="nav-history">Тарых</a>
+            <a href="geografiya.html" class="nav-btn-link" data-key="nav-geo">География</a>
+            <a href="informatika.html" class="nav-btn-link" data-key="nav-it">Информатика</a>
+        </nav>
     </div>
-    <nav>
-        <span class="lang-switch" id="lang-ru">Рус</span> | 
-        <span class="lang-switch" id="lang-kg">Кир</span> | 
-        <a href="tel:+996312664838" class="phone-link">+996 312 66-48-38</a>
-    </nav>
 </header>
 
-<div class="container">
-    <h1>Онлайн Тестирование (ОРТ)</h1>
-    <p>Выберите предмет для прохождения пробного теста:</p>
+<main class="container">
+    <div style="margin: 20px 0; text-align: center;">
+        <button onclick="speakText()" class="ai-button" data-key="ai-btn">🔊 Сабакты угуу</button>
+    </div>
 
-    <!-- ТЕСТТЕРДИН СЕТКАСЫ БАШТАЛДЫ -->
-    <div class="test-grid">
-        
-        <!-- Математика (Орусча) -->
-        <div class="test-card">
-            <span class="lang-badge">Русский • Вариант 2</span>
-            <span class="subject-title">Математика (Часть 1)</span>
-            <div class="info-row">
-                <span>⏱ 30 мин.</span>
-                <span>📝 30 заданий</span>
-            </div>
-            <a href="rusmath.html" class="btn">Начать тест</a>
-        </div>
+    <section class="hero">
+        <h2 data-key="welcome-title">Кош келиңиздер!</h2>
+        <p data-key="welcome-desc">Биздин портал аркылуу сиз эң керектүү илимдерди акысыз жана кызыктуу түрдө үйрөнө аласыз.</p>
+    </section>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+        <a href="math-hard.html" style="background-color: #ffc107; color: black; padding: 15px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; border: 2px solid #e0a800; margin: 5px;">
+            📝 Татаал тестти баштоо
+        </a>
+        <a href="python-course.html" style="background-color: #ffc107; color: black; padding: 15px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; border: 2px solid #e0a800; margin: 5px;">
+            🐍 Python Курсу
+        </a>
+    </div>
 
-        <!-- Математика (Кыргызча) -->
-        <div class="test-card kyrgyz">
-            <span class="lang-badge">Кыргызча • 2-вариант</span>
-            <span class="subject-title">Математика (1-бөлүм)</span>
-            <div class="info-row">
-                <span>⏱ 30 мүн.</span>
-                <span>📝 30 тапшырма</span>
-            </div>
-            <a href="math.html" class="btn">Тестти баштоо</a>
+    <section class="features" id="menu">
+        <div class="info-card">
+            <h3 data-key="card-books">Китептер</h3>
+            <p data-key="desc-books">Биздин бардык электрондук китептер ушул жерде.</p>
+            <a href="library.html" class="read-btn" data-key="btn-books">Китепканага кирүү</a>
         </div>
 
-        <!-- Башка предметтер (# шилтемеси менен) -->
-        <div class="test-card">
-            <span class="lang-badge">Русский • Вариант 2</span>
-            <span class="subject-title">Химия</span>
-            <div class="info-row">
-                <span>⏱ 80 мин.</span>
-                <span>📝 40 заданий</span>
-            </div>
-            <a href="#" class="btn">Начать тест</a>
+        <div class="info-card">
+            <h3 data-key="card-tests">Тесттер</h3>
+            <p data-key="desc-tests">Өз билимиңизди текшериңиз.</p>
+            <a href="test.html" class="read-btn" data-key="btn-tests">Тестти баштоо</a>
         </div>
 
-    </div> <!-- test-grid аяктады -->
-</div> <!-- container аяктады -->
-<footer class="footer">
-    <div class="contact-info">
-        <div>
-            <h3>Контакты</h3>
-            <p>Бишкек, ул. Тыныстанова 98</p>
-            <p>Тел: (996) 312 66-48-38</p>
+        <div class="info-card">
+            <h3 data-key="card-video">Видео сабактар</h3>
+            <p data-key="desc-video">Тажрыйбалуу мугалимдерден видео түшүндүрмөлөр.</p>
+            <a href="video.html" class="read-btn" data-key="btn-video">Видеолорду көрүү</a>
         </div>
-        <div>
-            <h3>График работы</h3>
-            <p>Пн-Пт: 9:00 - 17:00</p>
-            <p>Обед: 12:00 - 13:00</p>
-        </div>
-        <div>
-            <h3>Email</h3>
-            <p>ceatm@ceatm.elcat.kg</p>
+    </section>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <h3 data-key="contact-title">Суроолор боюнча жеке жардам:</h3>
+        <a href="https://wa.me/996508713717" class="read-btn" style="background-color: #25D366; border-color: #25D366; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" style="vertical-align: middle;"> WhatsApp-тан жазуу
+        </a>
+    </div>
+
+    <div class="container" style="margin: 40px auto; max-width: 1000px;">
+        <h3 style="text-align: center; color: #333; margin-bottom: 20px;">Окуучулардын талкуулоо чаты:</h3>
+        <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #ddd;">
+            <iframe src="https://www5.cbox.ws/box/?boxid=961509&boxtag=9gAIuB" width="100%" height="450" allowtransparency="yes" frameborder="0" scrolling="auto" style="border: none;"></iframe>
         </div>
     </div>
-    <hr style="opacity: 0.3; margin: 20px 0;">
-    <p style="text-align: center;">&copy; 2026 Официальный сайт ЦООМО. Все права защищены.</p>
+
+    <div class="comment-section container" style="margin-top: 30px;">
+        <h3>Пикир калтырыңыз</h3>
+        <div class="input-group">
+            <input type="text" id="userName" placeholder="Атыңыз" style="width: 100%; padding: 10px; margin-bottom: 5px;">
+            <textarea id="userComment" placeholder="Пикириңиз" style="width: 100%; padding: 10px; margin-bottom: 5px;"></textarea>
+            <button onclick="sendComment()" class="read-btn">Жөнөтүү</button>
+        </div>
+        <div class="display-section">
+            <h3>Бардык пикирлер:</h3>
+            <ul id="comments-list"></ul>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p data-key="footer-text">&copy; 2026 Билим Платформасы</p>
 </footer>
 
-<!-- Тышкы JavaScript файлын туташтыруу -->
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js?v=1.1"></script>
 
+<script>
+    function dynamicGreeting() {
+        const hour = new Date().getHours();
+        let message = "";
+        if (hour < 12) message = "Кутман таң! Окууга даярсызбы? 👋";
+        else if (hour < 18) message = "Кутман күн! Билим алууну улантабыз! 📚";
+        else message = "Кутман кеч! Бүгүнкү ийгиликтериңиз кандай? ✨";
+        
+        const welcomeEl = document.querySelector('[data-key="welcome-desc"]');
+        if (welcomeEl) welcomeEl.innerText = message;
+    }
+    window.addEventListener('DOMContentLoaded', dynamicGreeting);
+</script>
+
+<script type="text/javascript">
+var sc_project=13206444; var sc_invisible=1; var sc_security="d435eee0";
+</script>
+<script type="text/javascript" src="https://www.statcounter.com/counter/counter.js" async></script>
 </body>
 </html>

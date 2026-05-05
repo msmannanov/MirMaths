@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн Тест - ЦООМО</title>
+    <!-- Тышкы CSS файлын туташтыруу -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <a href="index.html">
+            <strong>ЦООМО / CEATM</strong>
+        </a>
+    </div>
+    <nav>
+        <span class="lang-switch" id="lang-ru">Рус</span> | 
+        <span class="lang-switch" id="lang-kg">Кир</span> | 
+        <a href="tel:+996312664838" class="phone-link">+996 312 66-48-38</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h1>Онлайн Тестирование (ОРТ)</h1>
+    <p>Выберите предмет для прохождения пробного теста:</p>
+
+    <!-- ТЕСТТЕРДИН СЕТКАСЫ БАШТАЛДЫ -->
+    <div class="test-grid">
+        
+        <!-- Математика (Орусча) -->
+        <div class="test-card">
+            <span class="lang-badge">Русский • Вариант 2</span>
+            <span class="subject-title">Математика (Часть 1)</span>
+            <div class="info-row">
+                <span>⏱ 30 мин.</span>
+                <span>📝 30 заданий</span>
+            </div>
+            <a href="rusmath.html" class="btn">Начать тест</a>
+        </div>
+
+        <!-- Математика (Кыргызча) -->
+        <div class="test-card kyrgyz">
+            <span class="lang-badge">Кыргызча • 2-вариант</span>
+            <span class="subject-title">Математика (1-бөлүм)</span>
+            <div class="info-row">
+                <span>⏱ 30 мүн.</span>
+                <span>📝 30 тапшырма</span>
+            </div>
+            <a href="math.html" class="btn">Тестти баштоо</a>
+        </div>
+
+        <!-- Башка предметтер (# шилтемеси менен) -->
+        <div class="test-card">
+            <span class="lang-badge">Русский • Вариант 2</span>
+            <span class="subject-title">Химия</span>
+            <div class="info-row">
+                <span>⏱ 80 мин.</span>
+                <span>📝 40 заданий</span>
+            </div>
+            <a href="#" class="btn">Начать тест</a>
+        </div>
+
+    </div> <!-- test-grid аяктады -->
+</div> <!-- container аяктады -->
+<footer class="footer">
+    <div class="contact-info">
+        <div>
+            <h3>Контакты</h3>
+            <p>Бишкек, ул. Тыныстанова 98</p>
+            <p>Тел: (996) 312 66-48-38</p>
+        </div>
+        <div>
+            <h3>График работы</h3>
+            <p>Пн-Пт: 9:00 - 17:00</p>
+            <p>Обед: 12:00 - 13:00</p>
+        </div>
+        <div>
+            <h3>Email</h3>
+            <p>ceatm@ceatm.elcat.kg</p>
+        </div>
+    </div>
+    <hr style="opacity: 0.3; margin: 20px 0;">
+    <p style="text-align: center;">&copy; 2026 Официальный сайт ЦООМО. Все права защищены.</p>
+</footer>
+
+<!-- Тышкы JavaScript файлын туташтыруу -->
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -148,5 +148,40 @@
     "question": "Сонли қаторнинг умумий ҳади нолга интилмаса, қатор ҳақида нима дейиш мумкин?",
     "options": ["Яқинлашувчи", "Абсолют яқинлашувчи", "Узоқлашувчи", "Шартли яқинлашувчи"],
     "answer": 2
+  },
+  {
+    "question": "Расмдаги функциянинг ҳосиласини топинг:",
+    "image": "images/savol1.png", 
+    "options": ["$2x$", "$x^2$", "$2$", "$0$"],
+    "answer": 0
+  },
+  {
+    "question": "Қуйидаги ифодани ҳисобланг: $5 + 5$",
+    "image": "", 
+    "options": ["10", "15", "20", "25"],
+    "answer": 0
+  },
+  {
+    "question": "Қайси расмда квадрат тасвирланган?",
+    "image": "", 
+    "options": [
+      "<img src='images/circle.png' width='50'>",
+      "<img src='images/square.png' width='50'>",
+      "<img src='images/triangle.png' width='50'>",
+      "<img src='images/line.png' width='50'>"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Расмдаги шаклнинг номини топинг:",
+    "image": "images/example.png",
+    "options": [
+      "Квадрат",
+      "Учбурчак",
+      "<img src='images/circle.png'> Доира",
+      "Тўғри чизиқ"
+    ],
+    "answer": 2
   }
+
 ]

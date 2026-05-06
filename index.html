@@ -2,23 +2,133 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Олий математика тести</title>
-    <!-- Математик формулалар учун -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Олий Математика Тест Тизими</title>
+    
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; line-height: 1.6; }
-        .question { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        .options button { display: block; width: 100%; margin: 5px 0; padding: 10px; cursor: pointer; text-align: left; }
-        #result { font-weight: bold; font-size: 1.2em; color: green; }
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ЮҚОРИ ҚИСМ - Реклама блоки олиб ташланди, фақат меню қолди */
+        header {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        header nav a {
+            text-decoration: none;
+            color: var(--primary-color);
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        /* АСОСИЙ ҚИСМ */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        /* ПАСТКИ ҚИСМ - Реклама блоки ва фон сақлаб қолинди */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .ad-space-footer {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border: 1px dashed #555;
+            margin-bottom: 15px;
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .options button {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .options button:hover {
+            border-color: var(--accent-color);
+            background-color: #f0faff;
+        }
+
+        #progress { color: #888; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div id="quiz-container">
-        <h2 id="question-text">Юкланмоқда...</h2>
-        <div id="options-container" class="options"></div>
-    </div>
-    <div id="result"></div>
+
+    <header>
+        <nav>
+            <a href="#">АСОСИЙ</a>
+            <a href="#">ТЕСТЛАР</a>
+            <a href="#">НАТИЖАЛАР</a>
+        </nav>
+    </header>
+
+    <main>
+        <div id="quiz-container">
+            <div id="progress">Юкланмоқда...</div>
+            <h2 id="question-text">Бироз кутинг...</h2>
+            <div id="options-container" class="options"></div>
+            <div id="result"></div>
+        </div>
+    </main>
+
+    <footer>
+        <!-- Пастки реклама блоки жойида қолди -->
+        <div class="ad-space-footer">
+            Бу ерда пастки реклама блоки бўлади (масалан, Google AdSense)
+        </div>
+        <p>&copy; 2026 Олий Математика Тест Тизими</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>

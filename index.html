@@ -10,7 +10,10 @@
         :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         
+        /* ЮҚОРИ ПАНЕЛЬ - РАСМДАГИДЕК */
         header { background: white; padding: 15px; display: flex; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        header nav a { text-decoration: none; color: var(--primary); margin: 0 20px; font-weight: 600; text-transform: uppercase; }
+
         main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
         
         #quiz-outer-container {
@@ -18,74 +21,69 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center;
         }
 
-        /* Таймер ва Тил танлаш (расмдаги каби) */
-        .top-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        #timer { font-size: 24px; font-weight: bold; color: #333; }
-        .lang-badge { border: 2px solid #000; border-radius: 20px; padding: 5px 20px; font-weight: bold; }
+        .top-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        #timer { font-size: 24px; font-weight: bold; color: var(--primary); }
 
-        #start-screen { padding: 40px 20px; }
-        .start-btn { background: var(--accent); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.2rem; cursor: pointer; }
+        #image-container { display: none; margin-bottom: 15px; }
+        #question-image { max-width: 100%; border-radius: 8px; }
 
-        #quiz-content { display: none; }
-        
-        .options { display: grid; gap: 8px; margin-top: 20px; }
-        .option-btn { 
-            background: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 14px; 
-            border-radius: 4px; cursor: pointer; font-size: 1rem; text-align: left; transition: 0.2s;
-        }
-        
-        /* Тўғри ва хато ранглари */
-        .option-btn.correct-ans { background-color: #2ecc71 !important; color: white !important; border-color: #27ae60; }
-        .option-btn.wrong-ans { background-color: #e74c3c !important; color: white !important; border-color: #c0392b; }
+        .options { display: grid; gap: 10px; margin-top: 20px; }
+        .option-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 14px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .option-btn:hover { background: #e9ecef; }
         .option-btn.selected { border: 2px solid var(--accent); background: #ebf5fb; }
+        .option-btn.correct-ans { background: #2ecc71 !important; color: white; }
+        .option-btn.wrong-ans { background: #e74c3c !important; color: white; }
 
-        /* Пастки навигация */
-        .nav-footer { background: #333; display: flex; align-items: center; justify-content: center; padding: 10px; margin-top: 20px; border-radius: 4px; overflow-x: auto; }
-        .num-box {
-            min-width: 30px; height: 35px; display: flex; align-items: center; justify-content: center;
-            color: white; cursor: pointer; font-weight: bold; border-right: 1px solid #555; padding: 0 10px;
-        }
-        .num-box:last-child { border-right: none; }
-        .num-box.active { background: #3498db; }
-        .num-box.nav-correct { color: #2ecc71; } /* Тўғри бўлса рақам яшил */
-        .num-box.nav-wrong { color: #e74c3c; }   /* Хато бўлса рақам қизил */
+        /* ҚОРА ПАНЕЛЬ (image_86d1b6.jpg каби) */
+        .number-pagination { display: flex; justify-content: center; background: #333; margin-top: 25px; border-radius: 4px; overflow: hidden; }
+        .num-box { flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 0.85rem; font-weight: bold; border-right: 1px solid #555; }
+        .num-box.active { background: var(--accent); }
+        .num-box.nav-correct { background: #2ecc71 !important; }
+        .num-box.nav-wrong { background: #e74c3c !important; }
 
-        .bottom-panel { margin-top: 15px; }
-        #submit-btn { width: 100%; padding: 15px; background: #444; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
-        #submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .bottom-panel { margin-top: 20px; }
+        #submit-btn { width: 100%; padding: 15px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        #submit-btn:disabled { opacity: 0.5; }
 
-        footer { background: var(--primary); color: white; padding: 15px; text-align: center; }
+        /* ПАСТКИ ПАНЕЛЬ - РАСМДАГИДЕК */
+        footer { background: #fff; color: #333; padding: 15px; text-align: center; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-<header><strong>МАТЕМАТИКА</strong></header>
+<header>
+    <nav>
+        <a href="#">АСОСИЙ</a>
+        <a href="#">ТЕСТЛАР</a>
+        <a href="#">НАТИЖАЛАР</a>
+    </nav>
+</header>
 
 <main>
     <div id="quiz-outer-container">
         <div id="start-screen">
-            <h2>Тестни бошлашга тайёрмисиз?</h2>
-            <button class="start-btn" onclick="startQuiz()">Начать тестирование</button>
+            <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 10px;">Олий математика тести</h2>
+            <p style="color: #7f8c8d; margin-bottom: 30px;">20 та савол, 20 дақиқа вақт.</p>
+            <button class="option-btn" style="background: var(--accent); color: white; border: none; padding: 15px 60px; border-radius: 30px; font-size: 1.3rem; display: inline-block; text-align: center;" onclick="startQuiz()">Бошлаш</button>
         </div>
 
-        <div id="quiz-content">
+        <div id="quiz-content" style="display: none;">
             <div class="top-info">
                 <div id="timer">20:00</div>
-                <div class="lang-badge">Ўзбек</div>
+                <div style="font-weight: bold; color: #7f8c8d;">Математика</div>
             </div>
-            
-            <h2 id="question-text" style="text-align:left; font-size: 1.1rem;">Юкланмоқда...</h2>
-            
+            <div id="image-container"><img id="question-image" src=""></div>
+            <h2 id="question-text" style="text-align: left; font-size: 1.1rem;"></h2>
             <div id="options-container" class="options"></div>
-            
             <div class="bottom-panel">
-                <button id="submit-btn" onclick="checkAnswer()" disabled>Ответить</button>
+                <button id="submit-btn" onclick="checkAnswer()" disabled>Жавоб бериш</button>
             </div>
-
-            <div id="pagination" class="nav-footer"></div>
+            <div id="pagination" class="number-pagination"></div>
         </div>
     </div>
 </main>
+
+<footer><p>&copy; 2026 Олий Математика Тест Тизими</p></footer>
 
 <script src="script.js"></script>
 </body>

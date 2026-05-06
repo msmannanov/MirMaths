@@ -10,34 +10,36 @@
 
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg: #f4f7f6;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg);
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* ЮҚОРИ ҚИСМ - Реклама блоки олиб ташланди, фақат меню қолди */
+        /* ЮҚОРИ МЕНЮ (Header) */
         header {
             background: white;
-            padding: 20px;
-            text-align: center;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-bottom: 3px solid var(--accent-color);
         }
 
         header nav a {
             text-decoration: none;
-            color: var(--primary-color);
+            color: var(--primary);
             margin: 0 15px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         /* АСОСИЙ ҚИСМ */
@@ -51,85 +53,133 @@
 
         #quiz-container {
             background: white;
-            padding: 30px;
+            padding: 20px 30px 30px 30px;
             border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
+            position: relative;
         }
 
-        /* ПАСТКИ ҚИСМ - Реклама блоки ва фон сақлаб қолинди */
-        footer {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .ad-space-footer {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border: 1px dashed #555;
+        /* ТАЙМЕР - ЭНДИ ТЕСТ БЛОКИ ИЧИДА */
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: left;
             margin-bottom: 15px;
-            color: #ccc;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h2 { font-size: 1.2rem; color: var(--primary); margin-bottom: 25px; min-height: 50px; }
+
+        .options { display: grid; gap: 10px; }
+        
+        .option-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .option-btn.selected {
+            background: #495057;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.5);
+        }
+
+        /* ПАСТКИ ПАНЕЛ */
+        .bottom-panel {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .stat-circle {
+            width: 35px;
+            height: 24px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
             font-size: 0.85rem;
         }
 
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        .stat-total { background: #adb5bd; }
+        .stat-correct { background: var(--success); }
+        .stat-wrong { background: var(--danger); }
 
-        .options button {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 1rem;
+        .control-btn {
+            background: #adb5bd;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: 0.2s;
-            text-align: left;
+            font-weight: 500;
         }
 
-        .options button:hover {
-            border-color: var(--accent-color);
-            background-color: #f0faff;
+        #submit-btn { opacity: 0.5; pointer-events: none; }
+        #submit-btn.active { opacity: 1; background: var(--accent); pointer-events: auto; }
+
+        /* ПАСТКИ ФОН */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
         }
 
-        #progress { color: #888; font-size: 0.9rem; }
+        .ad-footer {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border: 1px dashed #777;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <nav>
-            <a href="#">АСОСИЙ</a>
-            <a href="#">ТЕСТЛАР</a>
-            <a href="#">НАТИЖАЛАР</a>
-        </nav>
-    </header>
+<header>
+    <nav>
+        <a href="#">АСОСИЙ САҲИФА</a>
+        <a href="#">ТЕСТЛАР РЎЙХАТИ</a>
+    </nav>
+</header>
 
-    <main>
-        <div id="quiz-container">
-            <div id="progress">Юкланмоқда...</div>
-            <h2 id="question-text">Бироз кутинг...</h2>
-            <div id="options-container" class="options"></div>
-            <div id="result"></div>
+<main>
+    <div id="quiz-container">
+        <!-- ТАЙМЕР БУ ЕРГА КЎЧИРИЛДИ -->
+        <div id="timer">20:00</div>
+        
+        <h2 id="question-text">Юкланмоқда...</h2>
+        <div id="options-container" class="options"></div>
+
+        <div class="bottom-panel">
+            <div class="stat-circle stat-total" id="total-count">20</div>
+            <div class="stat-circle stat-correct" id="correct-count">0</div>
+            <div class="stat-circle stat-wrong" id="wrong-count">0</div>
+            <button class="control-btn" onclick="skipQuestion()">Пропустить</button>
+            <button class="control-btn" id="submit-btn" onclick="submitAnswer()">Ответить</button>
         </div>
-    </main>
+    </div>
+</main>
 
-    <footer>
-        <!-- Пастки реклама блоки жойида қолди -->
-        <div class="ad-space-footer">
-            Бу ерда пастки реклама блоки бўлади (масалан, Google AdSense)
-        </div>
-        <p>&copy; 2026 Олий Математика Тест Тизими</p>
-    </footer>
+<footer>
+    <div class="ad-footer">БУ ЕРДА РЕКЛАМА БЎЛИШИ МУМКИН</div>
+    <p>&copy; 2026 Олий Математика Тест Тизими</p>
+</footer>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

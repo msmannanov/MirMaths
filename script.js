@@ -1,106 +1,114 @@
 let allQuestions = [];
 let quizQuestions = [];
 let currentQuestionIndex = 0;
-let correctAnswersCount = 0;
+let userAnswers = []; 
+let selectedOptionIndex = null;
+let correctCount = 0;
+let wrongCount = 0;
+let timeLeft = 20 * 60; // 20 дақиқа сонияларда
 
-// 1. Саволларни файлдан юклаш
-fetch('questions.json')
-    .then(response => response.json())
-    .then(data => {
-        allQuestions = data;
-        setupQuiz();
-    })
-    .catch(error => {
-        console.error("Хатолик юз берди:", error);
-        document.getElementById('question-text').innerText = "Тестларни юклашда хатолик!";
-    });
-
-// 2. Тестни созлаш (20 тасини танлаб олиш)
-function setupQuiz() {
-    // Саволларни тасодифий тартибда аралаштириш
-    const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-    
-    // Аралашган саволлардан дастлабки 20 тасини ажратиб олиш
-    quizQuestions = shuffled.slice(0, 20);
-    
-    currentQuestionIndex = 0;
-    correctAnswersCount = 0;
-    displayQuestion();
+// Таймерни ишга тушириш
+function startTimer() {
+    const timerElement = document.getElementById('timer');
+    const timerInterval = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            showFinalResults(); // Вақт тугаса тугатиш
+        }
+        timeLeft--;
+    }, 1000);
 }
 
-// 3. Саволни экранга чиқариш
-function displayQuestion() {
-    const questionTextElement = document.getElementById('question-text');
-    const optionsContainer = document.getElementById('options-container');
-    const progressElement = document.getElementById('progress');
-    const resultElement = document.getElementById('result');
+fetch('questions.json')
+    .then(res => res.json())
+    .then(data => {
+        allQuestions = data;
+        quizQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 20);
+        userAnswers = new Array(quizQuestions.length).fill(null);
+        startTimer();
+        displayQuestion();
+    });
 
-    // Натижа қисмини тозалаш
-    resultElement.innerText = "";
+function displayQuestion() {
+    const qText = document.getElementById('question-text');
+    const optCont = document.getElementById('options-container');
+    const sBtn = document.getElementById('submit-btn');
+    const totalCountEl = document.getElementById('total-count');
+
+    selectedOptionIndex = null;
+    sBtn.classList.remove('active');
+    totalCountEl.innerText = quizQuestions.length - currentQuestionIndex;
 
     if (currentQuestionIndex < quizQuestions.length) {
         const q = quizQuestions[currentQuestionIndex];
+        qText.innerText = q.question;
         
-        // Прогрессни янгилаш
-        progressElement.innerText = `Савол: ${currentQuestionIndex + 1} / ${quizQuestions.length}`;
-        
-        // Савол матнини чиқариш
-        questionTextElement.innerText = q.question;
-        
-        // Вариантларни чиқариш
-        optionsContainer.innerHTML = '';
-        q.options.forEach((opt, index) => {
+        optCont.innerHTML = '';
+        q.options.forEach((opt, idx) => {
             const btn = document.createElement('button');
             btn.innerText = opt;
-            btn.onclick = () => checkAnswer(index);
-            optionsContainer.appendChild(btn);
+            btn.className = "option-btn";
+            btn.onclick = () => {
+                selectedOptionIndex = idx;
+                highlightOption(btn);
+                sBtn.classList.add('active');
+            };
+            optCont.appendChild(btn);
         });
+        if (window.MathJax) MathJax.typeset();
+    } else {
+        checkSkipped();
+    }
+}
 
-        // Формулаларни чиройли қилиш (MathJax)
-        if (window.MathJax && window.MathJax.typeset) {
-            window.MathJax.typeset();
-        }
+function highlightOption(btn) {
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+}
+
+function submitAnswer() {
+    const q = quizQuestions[currentQuestionIndex];
+    if (selectedOptionIndex === q.answer) {
+        correctCount++;
+        document.getElementById('correct-count').innerText = correctCount;
+    } else {
+        wrongCount++;
+        document.getElementById('wrong-count').innerText = wrongCount;
+    }
+    userAnswers[currentQuestionIndex] = selectedOptionIndex;
+    moveToNext();
+}
+
+function skipQuestion() {
+    userAnswers[currentQuestionIndex] = -1; // Пропустить
+    moveToNext();
+}
+
+function moveToNext() {
+    currentQuestionIndex++;
+    displayQuestion();
+}
+
+// Ташлаб кетилганларни текшириш (Review Mode)
+function checkSkipped() {
+    let firstSkipped = userAnswers.indexOf(-1);
+    if (firstSkipped !== -1) {
+        currentQuestionIndex = firstSkipped;
+        displayQuestion();
     } else {
         showFinalResults();
     }
 }
 
-// 4. Жавобни текшириш
-function checkAnswer(selectedIndex) {
-    const q = quizQuestions[currentQuestionIndex];
-    
-    if (selectedIndex === q.answer) {
-        correctAnswersCount++;
-    }
-
-    currentQuestionIndex++;
-    displayQuestion();
-}
-
-// 5. Якуний натижани кўрсатиш
 function showFinalResults() {
-    const container = document.getElementById('quiz-container');
-    const total = quizQuestions.length;
-    const wrongAnswers = total - correctAnswersCount;
-    const percentage = Math.round((correctAnswersCount / total) * 100);
-
-    container.innerHTML = `
-        <h2 style="color: #2c3e50;">Тест якунланди!</h2>
-        <div style="text-align: left; margin: 20px 0; font-size: 1.1rem;">
-            <p>✅ Тўғри жавоблар: <strong>${correctAnswersCount}</strong></p>
-            <p>❌ Хато жавоблар: <strong>${wrongAnswers}</strong></p>
-            <p>📊 Умумий натижа: <strong>${percentage}%</strong></p>
-        </div>
-        <button onclick="location.reload()" style="
-            background-color: #3498db; 
-            color: white; 
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 8px; 
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;">
-            Қайта бошлаш
-        </button>
+    document.getElementById('quiz-container').innerHTML = `
+        <h2>Тест Якунланди</h2>
+        <p>✅ Тўғри: ${correctCount}</p>
+        <p>❌ Хато: ${wrongCount}</p>
+        <button onclick="location.reload()" style="padding:10px 20px; cursor:pointer;">Қайта бошлаш</button>
     `;
 }

@@ -1,114 +1,180 @@
-let allQuestions = [];
-let quizQuestions = [];
-let currentQuestionIndex = 0;
-let userAnswers = []; 
-let selectedOptionIndex = null;
-let correctCount = 0;
-let wrongCount = 0;
-let timeLeft = 20 * 60; // 20 дақиқа сонияларда
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Олий Математика Тест Тизими</title>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-// Таймерни ишга тушириш
-function startTimer() {
-    const timerElement = document.getElementById('timer');
-    const timerInterval = setInterval(() => {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            showFinalResults(); // Вақт тугаса тугатиш
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg: #f4f7f6;
         }
-        timeLeft--;
-    }, 1000);
-}
 
-fetch('questions.json')
-    .then(res => res.json())
-    .then(data => {
-        allQuestions = data;
-        quizQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 20);
-        userAnswers = new Array(quizQuestions.length).fill(null);
-        startTimer();
-        displayQuestion();
-    });
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-function displayQuestion() {
-    const qText = document.getElementById('question-text');
-    const optCont = document.getElementById('options-container');
-    const sBtn = document.getElementById('submit-btn');
-    const totalCountEl = document.getElementById('total-count');
+        /* ЮҚОРИ ФОН (Меню) */
+        header {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
 
-    selectedOptionIndex = null;
-    sBtn.classList.remove('active');
-    totalCountEl.innerText = quizQuestions.length - currentQuestionIndex;
+        #timer {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+        }
 
-    if (currentQuestionIndex < quizQuestions.length) {
-        const q = quizQuestions[currentQuestionIndex];
-        qText.innerText = q.question;
+        header nav a {
+            text-decoration: none;
+            color: var(--primary);
+            margin-left: 15px;
+            font-weight: 600;
+        }
+
+        /* АСОСИЙ ҚИСМ */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        h2 { font-size: 1.2rem; color: var(--primary); margin-bottom: 25px; }
+
+        .options { display: grid; gap: 10px; }
         
-        optCont.innerHTML = '';
-        q.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.innerText = opt;
-            btn.className = "option-btn";
-            btn.onclick = () => {
-                selectedOptionIndex = idx;
-                highlightOption(btn);
-                sBtn.classList.add('active');
-            };
-            optCont.appendChild(btn);
-        });
-        if (window.MathJax) MathJax.typeset();
-    } else {
-        checkSkipped();
-    }
-}
+        .option-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+            transition: 0.2s;
+        }
 
-function highlightOption(btn) {
-    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-}
+        .option-btn.selected {
+            background: #495057;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.5);
+        }
 
-function submitAnswer() {
-    const q = quizQuestions[currentQuestionIndex];
-    if (selectedOptionIndex === q.answer) {
-        correctCount++;
-        document.getElementById('correct-count').innerText = correctCount;
-    } else {
-        wrongCount++;
-        document.getElementById('wrong-count').innerText = wrongCount;
-    }
-    userAnswers[currentQuestionIndex] = selectedOptionIndex;
-    moveToNext();
-}
+        /* ПАСТКИ ПАНЕЛ (Статистика) */
+        .bottom-panel {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+        }
 
-function skipQuestion() {
-    userAnswers[currentQuestionIndex] = -1; // Пропустить
-    moveToNext();
-}
+        .stat-circle {
+            width: 35px;
+            height: 24px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
 
-function moveToNext() {
-    currentQuestionIndex++;
-    displayQuestion();
-}
+        .stat-total { background: #adb5bd; }
+        .stat-correct { background: var(--success); }
+        .stat-wrong { background: var(--danger); }
 
-// Ташлаб кетилганларни текшириш (Review Mode)
-function checkSkipped() {
-    let firstSkipped = userAnswers.indexOf(-1);
-    if (firstSkipped !== -1) {
-        currentQuestionIndex = firstSkipped;
-        displayQuestion();
-    } else {
-        showFinalResults();
-    }
-}
+        .control-btn {
+            background: #adb5bd;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+        }
 
-function showFinalResults() {
-    document.getElementById('quiz-container').innerHTML = `
-        <h2>Тест Якунланди</h2>
-        <p>✅ Тўғри: ${correctCount}</p>
-        <p>❌ Хато: ${wrongCount}</p>
-        <button onclick="location.reload()" style="padding:10px 20px; cursor:pointer;">Қайта бошлаш</button>
-    `;
-}
+        #submit-btn { opacity: 0.5; pointer-events: none; }
+        #submit-btn.active { opacity: 1; background: var(--accent); pointer-events: auto; }
+
+        /* ПАСТКИ ФОН (Footer) */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .ad-footer {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border: 1px dashed #777;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div id="timer">20:00</div>
+    <nav>
+        <a href="#">АСОСИЙ</a>
+        <a href="#">НАТИЖАЛАР</a>
+    </nav>
+</header>
+
+<main>
+    <div id="quiz-container">
+        <h2 id="question-text">Юкланмоқда...</h2>
+        <div id="options-container" class="options"></div>
+
+        <div class="bottom-panel">
+            <div class="stat-circle stat-total" id="total-count">20</div>
+            <div class="stat-circle stat-correct" id="correct-count">0</div>
+            <div class="stat-circle stat-wrong" id="wrong-count">0</div>
+            <button class="control-btn" onclick="skipQuestion()">Пропустить</button>
+            <button class="control-btn" id="submit-btn" onclick="submitAnswer()">Ответить</button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="ad-footer">РЕКЛАМА УЧУН ЖОЙ (ПАСТКИ ФОН)</div>
+    <p>&copy; 2026 Математика Тест Тизими</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

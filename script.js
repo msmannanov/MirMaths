@@ -17,7 +17,8 @@ function startQuiz() {
             createPagination();
             runTimer();
             displayQuestion();
-        });
+        })
+        .catch(err => console.error("JSON юклашда хато:", err));
 }
 
 function createPagination() {
@@ -38,12 +39,17 @@ function displayQuestion() {
     const u = userAnswers[currentQuestionIndex];
     tempSelection = null;
 
-    document.getElementById('question-text').innerText = (currentQuestionIndex + 1) + ". " + q.question;
+    // .innerText ўрнига .innerHTML ишлатилди (формулалар учун)
+    document.getElementById('question-text').innerHTML = (currentQuestionIndex + 1) + ". " + q.question;
     
     const imgCont = document.getElementById('image-container');
     const imgTag = document.getElementById('question-image');
-    if(q.image) { imgTag.src = q.image; imgCont.style.display = "block"; } 
-    else { imgCont.style.display = "none"; }
+    if(q.image && q.image !== "") { 
+        imgTag.src = q.image; 
+        imgCont.style.display = "block"; 
+    } else { 
+        imgCont.style.display = "none"; 
+    }
 
     const optCont = document.getElementById('options-container');
     const sBtn = document.getElementById('submit-btn');
@@ -52,7 +58,7 @@ function displayQuestion() {
 
     q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.innerHTML = opt; // Бу ерда HTML (расм теглари) ишлайди
+        btn.innerHTML = opt; 
         btn.className = "option-btn";
         
         if (u.choice !== null) {
@@ -72,7 +78,11 @@ function displayQuestion() {
 
     document.querySelectorAll('.num-box').forEach(box => box.classList.remove('active'));
     document.getElementById(`nav-${currentQuestionIndex}`).classList.add('active');
-    if (window.MathJax) MathJax.typeset();
+
+    // Формулаларни янгилаш (Re-render MathJax)
+    if (window.MathJax) {
+        MathJax.typesetPromise().catch((err) => console.log('MathJax хатоси:', err));
+    }
 }
 
 function checkAnswer() {
@@ -122,7 +132,10 @@ function runTimer() {
         let min = Math.floor(timeLeft / 60);
         let sec = timeLeft % 60;
         document.getElementById('timer').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        if (timeLeft <= 0) { showResults(); }
+        if (timeLeft <= 0) { 
+            clearInterval(timerInterval);
+            showResults(); 
+        }
         timeLeft--;
     }, 1000);
 }

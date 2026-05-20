@@ -12,6 +12,13 @@ function startQuiz() {
     fetch('questions.json')
         .then(res => res.json())
         .then(data => {
+            // Суроолорду туш келди тартипте аралаштыруу (Фишер-Йетс алгоритми)
+            for (let i = data.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [data[i], data[j]] = [data[j], data[i]];
+            }
+            
+            // Аралаштырылган суроолордон 20 суроону тандап алуу
             quizQuestions = data.slice(0, 20);
             userAnswers = quizQuestions.map(() => ({ choice: null, isCorrect: null }));
             createPagination();
@@ -20,6 +27,7 @@ function startQuiz() {
         })
         .catch(err => console.error("JSON жүктөөдө ката кетти:", err));
 }
+
 
 function createPagination() {
     const pagCont = document.getElementById('pagination');

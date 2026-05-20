@@ -1,33 +1,95 @@
-let quizQuestions = [];
+let allQuestions = []; // JSON'догу бардык суроолор сакталат
+let quizQuestions = []; // Тандалган темага тиешелүү 20 суроо
 let currentQuestionIndex = 0;
 let userAnswers = []; 
 let timeLeft = 20 * 60;
 let tempSelection = null;
 let timerInterval;
 
-function startQuiz() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('quiz-content').style.display = 'block';
-    
+// Темалардын тизмеси (10-15 теманы ушул жерге кошосуз)
+const mathTopics = [
+    "Матрицалар жана детерминанттар",
+    "Векторлор жана алардын касиеттери",
+    "Түз сызыктын теңдемелери",
+    "Чектүүлүктөр (Пределдер)",
+    "Функциянын туундусу",
+    "Туундунун колдонулушу жана экстремумдар",
+    "Аныкталбаган интеграл",
+    "Аныкталган интеграл жана аянты",
+    "Тригонометриялык теңдемелер",
+    "Көрсөткүчтүү жана логарифмдик теңдемелер",
+    "Прогрессиялар (Арифметикалык жана геометриялык)",
+    "Ыктымалдуулуктар теориясы",
+    "Комбинаториканын элементтери",
+    "Стереометрия (Көлөмдөр жана аянттар)",
+    "Дифференциалдык теңдемелер"
+];
+
+// Тиркеме же сайт жүктөлгөндө эң алгач бардык суроолорду фондо жүктөп алат
+window.onload = function() {
     fetch('questions.json')
         .then(res => res.json())
         .then(data => {
-            // Суроолорду туш келди тартипте аралаштыруу (Фишер-Йетс алгоритми)
-            for (let i = data.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [data[i], data[j]] = [data[j], data[i]];
-            }
-            
-            // Аралаштырылган суроолордон 20 суроону тандап алуу
-            quizQuestions = data.slice(0, 20);
-            userAnswers = quizQuestions.map(() => ({ choice: null, isCorrect: null }));
-            createPagination();
-            runTimer();
-            displayQuestion();
+            allQuestions = data;
         })
         .catch(err => console.error("JSON жүктөөдө ката кетти:", err));
+};
+
+// Экранда темалардын тизмесин көрсөтүүчү функция
+function showTopics() {
+    clearInterval(timerInterval); // Эгер эски таймер иштеп жатса токтотобуз
+    
+    // Бардык экрандарды жаап, бир гана темалар экранын ачабыз
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('quiz-content').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('topics-screen').style.display = 'block';
+
+    const topicsCont = document.getElementById('topics-container');
+    topicsCont.innerHTML = ''; // Ичин тазалоо
+
+    // Тизмедеги ар бир темага өзүнчө баскыч түзөбүз
+    mathTopics.forEach((topicName) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.style.width = '100%';
+        btn.style.marginBottom = '5px';
+        btn.style.fontWeight = '600';
+        btn.innerText = topicName;
+        
+        // Тема басылганда тестти баштоо функциясын чакырат
+        btn.onclick = () => startQuizWithTopic(topicName);
+        topicsCont.appendChild(btn);
+    });
 }
 
+// Тандалган тема боюнча тестти баштоо
+function startQuizWithTopic(topicName) {
+    document.getElementById('topics-screen').style.display = 'none';
+    document.getElementById('quiz-content').style.display = 'block';
+    document.getElementById('current-topic-title').innerText = topicName;
+
+    // Сиздин json файлыңызда "topic" деген бөлүм жок болсо, азырынча жөн эле бардык 
+    // суроолорду аралаштырып берет. Кийин ар бир суроого тема атын кошуп алсаңыз болот.
+    let filteredQuestions = [...allQuestions]; 
+
+    // Суроолорду туш келди аралаштыруу (Фишер-Йетс алгоритми)
+    for (let i = filteredQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+    }
+
+    // Максимум 20 же андан аз суроо тандап алуу
+    quizQuestions = filteredQuestions.slice(0, Math.min(20, filteredQuestions.length));
+    userAnswers = quizQuestions.map(() => ({ choice: null, isCorrect: null }));
+    
+    currentQuestionIndex = 0;
+    timeLeft = 20 * 60; // Убакытты баштапкы абалга келтирүү
+    
+    createPagination();
+    runTimer();
+    displayQuestion();
+}
 
 function createPagination() {
     const pagCont = document.getElementById('pagination');
@@ -43,11 +105,12 @@ function createPagination() {
 }
 
 function displayQuestion() {
+    if(quizQuestions.length === 0) return;
+    
     const q = quizQuestions[currentQuestionIndex];
     const u = userAnswers[currentQuestionIndex];
     tempSelection = null;
 
-    // Белгилерди туура форматка келтирүү (\\ белгисин \ га алмаштыруу)
     let cleanedQuestion = q.question.replace(/\\\\/g, '\\');
     document.getElementById('question-text').innerHTML = (currentQuestionIndex + 1) + ". " + cleanedQuestion;
     
@@ -67,7 +130,6 @@ function displayQuestion() {
 
     q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        
         let cleanedOption = opt.replace(/\\\\/g, '\\');
         btn.innerHTML = cleanedOption; 
         btn.className = "option-btn";
@@ -90,7 +152,6 @@ function displayQuestion() {
     document.querySelectorAll('.num-box').forEach(box => box.classList.remove('active'));
     document.getElementById(`nav-${currentQuestionIndex}`).classList.add('active');
 
-    // MathJax аркылуу формулаларды кайрадан сулуулап чыгуу
     if (window.MathJax && window.MathJax.typesetPromise) {
         MathJax.typesetPromise([
             document.getElementById('question-text'),

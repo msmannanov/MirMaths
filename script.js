@@ -18,7 +18,7 @@ function startQuiz() {
             runTimer();
             displayQuestion();
         })
-        .catch(err => console.error("JSON юклашда хато:", err));
+        .catch(err => console.error("JSON жүктөөдө ката кетти:", err));
 }
 
 function createPagination() {
@@ -39,8 +39,9 @@ function displayQuestion() {
     const u = userAnswers[currentQuestionIndex];
     tempSelection = null;
 
-    // .innerText ўрнига .innerHTML ишлатилди (формулалар учун)
-    document.getElementById('question-text').innerHTML = (currentQuestionIndex + 1) + ". " + q.question;
+    // Белгилерди туура форматка келтирүү (\\ белгисин \ га алмаштыруу)
+    let cleanedQuestion = q.question.replace(/\\\\/g, '\\');
+    document.getElementById('question-text').innerHTML = (currentQuestionIndex + 1) + ". " + cleanedQuestion;
     
     const imgCont = document.getElementById('image-container');
     const imgTag = document.getElementById('question-image');
@@ -58,7 +59,9 @@ function displayQuestion() {
 
     q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.innerHTML = opt; 
+        
+        let cleanedOption = opt.replace(/\\\\/g, '\\');
+        btn.innerHTML = cleanedOption; 
         btn.className = "option-btn";
         
         if (u.choice !== null) {
@@ -79,9 +82,12 @@ function displayQuestion() {
     document.querySelectorAll('.num-box').forEach(box => box.classList.remove('active'));
     document.getElementById(`nav-${currentQuestionIndex}`).classList.add('active');
 
-    // Формулаларни янгилаш (Re-render MathJax)
-    if (window.MathJax) {
-        MathJax.typesetPromise().catch((err) => console.log('MathJax хатоси:', err));
+    // MathJax аркылуу формулаларды кайрадан сулуулап чыгуу
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([
+            document.getElementById('question-text'),
+            document.getElementById('options-container')
+        ]).catch((err) => console.log('MathJax катасы:', err));
     }
 }
 
@@ -124,7 +130,7 @@ function showResults() {
 
     document.getElementById('correct-count').innerText = correct;
     document.getElementById('total-count').innerText = total;
-    document.getElementById('percentage').innerText = `Сизнинг кўрсаткичингиз: ${percent}%`;
+    document.getElementById('percentage').innerText = `Сиздин көрсөткүчүңүз: ${percent}%`;
 }
 
 function runTimer() {

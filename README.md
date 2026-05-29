@@ -1,2 +1,0 @@
-# MirMaths
-Educational platform

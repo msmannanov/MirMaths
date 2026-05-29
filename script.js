@@ -1,12 +1,12 @@
-let allQuestions = []; // JSON'догу бардык суроолор сакталат
-let quizQuestions = []; // Тандалган темага тиешелүү 20 суроо
+let allQuestions = []; 
+let quizQuestions = []; 
 let currentQuestionIndex = 0;
 let userAnswers = []; 
 let timeLeft = 20 * 60;
 let tempSelection = null;
 let timerInterval;
 
-// Темалардын тизмеси (10-15 теманы ушул жерге кошосуз)
+// Тест тизимидаги математика мавзулари
 const mathTopics = [
     "Матрицалар жана детерминанттар",
     "Векторлор жана алардын касиеттери",
@@ -25,172 +25,174 @@ const mathTopics = [
     "Дифференциалдык теңдемелер"
 ];
 
-// Тиркеме же сайт жүктөлгөндө эң алгач бардык суроолорду фондо жүктөп алат
+// Сайт юкланиши билан ишга тушадиган бош функция
 window.onload = function() {
-    fetch('questions.json')
-        .then(res => res.json())
-        .then(data => {
-            allQuestions = data;
-        })
-        .catch(err => console.error("JSON жүктөөдө ката кетти:", err));
+    buildTopicsMenu();
+    fetchQuestions();
 };
 
-// Экранда темалардын тизмесин көрсөтүүчү функция
-function showTopics() {
-    clearInterval(timerInterval); // Эгер эски таймер иштеп жатса токтотобуз
+// 1. Мавзуларни экранга чиройли карточка қилиб чиқариш
+function buildTopicsMenu() {
+    const container = document.getElementById('topics-container');
+    if (!container) return;
     
-    // Бардык экрандарды жаап, бир гана темалар экранын ачабыз
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('quiz-content').style.display = 'none';
-    document.getElementById('result-screen').style.display = 'none';
-    document.getElementById('topics-screen').style.display = 'block';
-
-    const topicsCont = document.getElementById('topics-container');
-    topicsCont.innerHTML = ''; // Ичин тазалоо
-
-    // Тизмедеги ар бир темага өзүнчө баскыч түзөбүз
-    mathTopics.forEach((topicName) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.style.width = '100%';
-        btn.style.marginBottom = '5px';
-        btn.style.fontWeight = '600';
-        btn.innerText = topicName;
-        
-        // Тема басылганда тестти баштоо функциясын чакырат
-        btn.onclick = () => startQuizWithTopic(topicName);
-        topicsCont.appendChild(btn);
+    container.innerHTML = '';
+    mathTopics.forEach(topic => {
+        const box = document.createElement('div');
+        box.className = 'topic-box';
+        box.innerText = topic;
+        box.onclick = () => startQuiz(topic);
+        container.appendChild(box);
     });
 }
 
-// Тандалган тема боюнча тестти баштоо
-function startQuizWithTopic(topicName) {
+// JSON файлдан саволларни олиш
+function fetchQuestions() {
+    fetch('questions.json')
+        .then(response => {
+            if (!response.ok) throw new Error("JSON файл топилмади!");
+            return response.json();
+        })
+        .then(data => {
+            allQuestions = data;
+            console.log("Саволлар муваффақиятли юкланди.");
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Саволларни юклашда хатолик бўлди. questions.json файлини текширинг.");
+        });
+}
+
+// 2. Тестни бошлаш (Мавзу босилганда ишга тушади)
+function startQuiz(topicName) {
+    // Танланган мавзуга тегишли саволларни саралаб олиш
+    quizQuestions = allQuestions.filter(q => q.topic === topicName);
+
+    // Агар бу мавзуда савол бўлмаса, вақтинча базадаги биринчи 20 тасини бериб турамиз
+    if (quizQuestions.length === 0) {
+        quizQuestions = allQuestions.slice(0, 20);
+    }
+
+    // Созламаларни янгилаш
+    currentQuestionIndex = 0;
+    timeLeft = 20 * 60;
+    tempSelection = null;
+    userAnswers = quizQuestions.map(() => ({ choice: null, isCorrect: false }));
+
+    // Мавзулар экранини ёпиб, тест экранини очиш
     document.getElementById('topics-screen').style.display = 'none';
-    document.getElementById('quiz-content').style.display = 'block';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    
     document.getElementById('current-topic-title').innerText = topicName;
 
-    // Сиздин json файлыңызда "topic" деген бөлүм жок болсо, азырынча жөн эле бардык 
-    // суроолорду аралаштырып берет. Кийин ар бир суроого тема атын кошуп алсаңыз болот.
-    let filteredQuestions = [...allQuestions]; 
-
-    // Суроолорду туш келди аралаштыруу (Фишер-Йетс алгоритми)
-    for (let i = filteredQuestions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
-    }
-
-    // Максимум 20 же андан аз суроо тандап алуу
-    quizQuestions = filteredQuestions.slice(0, Math.min(20, filteredQuestions.length));
-    userAnswers = quizQuestions.map(() => ({ choice: null, isCorrect: null }));
-    
-    currentQuestionIndex = 0;
-    timeLeft = 20 * 60; // Убакытты баштапкы абалга келтирүү
-    
-    createPagination();
     runTimer();
     displayQuestion();
+    buildPagination();
 }
 
-function createPagination() {
-    const pagCont = document.getElementById('pagination');
-    pagCont.innerHTML = '';
-    for (let i = 0; i < quizQuestions.length; i++) {
-        const div = document.createElement('div');
-        div.className = 'num-box';
-        div.innerText = i + 1;
-        div.id = `nav-${i}`;
-        div.onclick = () => goToQuestion(i);
-        pagCont.appendChild(div);
-    }
-}
-
+// Саволни чиқариш
 function displayQuestion() {
-    if(quizQuestions.length === 0) return;
-    
     const q = quizQuestions[currentQuestionIndex];
-    const u = userAnswers[currentQuestionIndex];
-    tempSelection = null;
+    document.getElementById('question-text').innerText = `${currentQuestionIndex + 1}. ${q.question}`;
 
-    let cleanedQuestion = q.question.replace(/\\\\/g, '\\');
-    document.getElementById('question-text').innerHTML = (currentQuestionIndex + 1) + ". " + cleanedQuestion;
-    
-    const imgCont = document.getElementById('image-container');
-    const imgTag = document.getElementById('question-image');
-    if(q.image && q.image !== "") { 
-        imgTag.src = q.image; 
-        imgCont.style.display = "block"; 
-    } else { 
-        imgCont.style.display = "none"; 
-    }
-
-    const optCont = document.getElementById('options-container');
-    const sBtn = document.getElementById('submit-btn');
-    optCont.innerHTML = '';
-    sBtn.disabled = true;
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
 
     q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        let cleanedOption = opt.replace(/\\\\/g, '\\');
-        btn.innerHTML = cleanedOption; 
-        btn.className = "option-btn";
+        btn.className = 'option-btn';
+        btn.innerText = opt;
         
-        if (u.choice !== null) {
-            if (idx === q.answer) btn.classList.add('correct-ans');
-            if (idx === u.choice && u.choice !== q.answer) btn.classList.add('wrong-ans');
-            sBtn.disabled = true;
-        } else {
-            btn.onclick = () => {
-                tempSelection = idx;
-                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                sBtn.disabled = false;
-            };
+        if (userAnswers[currentQuestionIndex].choice === idx) {
+            btn.classList.add('selected');
         }
-        optCont.appendChild(btn);
+
+        btn.onclick = () => selectOption(idx, btn);
+        optionsContainer.appendChild(btn);
     });
 
-    document.querySelectorAll('.num-box').forEach(box => box.classList.remove('active'));
-    document.getElementById(`nav-${currentQuestionIndex}`).classList.add('active');
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.disabled = userAnswers[currentQuestionIndex].choice === null;
 
-    if (window.MathJax && window.MathJax.typesetPromise) {
-        MathJax.typesetPromise([
-            document.getElementById('question-text'),
-            document.getElementById('options-container')
-        ]).catch((err) => console.log('MathJax катасы:', err));
+    if (window.MathJax) {
+        MathJax.typesetPromise();
     }
 }
 
+function selectOption(idx, btn) {
+    tempSelection = idx;
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    
+    document.getElementById('submit-btn').disabled = false;
+}
+
+// Жавобни текшириш ва сақлаш
 function checkAnswer() {
     if (tempSelection === null) return;
+
     const q = quizQuestions[currentQuestionIndex];
-    userAnswers[currentQuestionIndex] = { choice: tempSelection, isCorrect: tempSelection === q.answer };
+    const isCorrect = (tempSelection === q.answer);
 
-    const navBox = document.getElementById(`nav-${currentQuestionIndex}`);
-    navBox.classList.add(userAnswers[currentQuestionIndex].isCorrect ? 'nav-correct' : 'nav-wrong');
+    userAnswers[currentQuestionIndex] = {
+        choice: tempSelection,
+        isCorrect: isCorrect
+    };
 
-    displayQuestion();
+    // Доирачалар рангини янгилаш
+    buildPagination();
 
+    // Ярим сониядан кейин кейинги саволга ўтиш
     setTimeout(() => {
-        let next = userAnswers.findIndex((ans, idx) => ans.choice === null && idx > currentQuestionIndex);
-        if (next === -1) next = userAnswers.findIndex(ans => ans.choice === null);
-
-        if (next !== -1) {
-            currentQuestionIndex = next;
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+            currentQuestionIndex++;
+            tempSelection = null;
             displayQuestion();
+            buildPagination();
         } else {
             showResults();
         }
-    }, 1000);
+    }, 400);
 }
 
-function goToQuestion(i) {
-    currentQuestionIndex = i;
-    displayQuestion();
+// Пастки рақамли доирачаларни яратиш ва ранг бериш
+function buildPagination() {
+    const pag = document.getElementById('pagination');
+    if (!pag) return;
+    pag.innerHTML = '';
+
+    quizQuestions.forEach((_, idx) => {
+        const num = document.createElement('div');
+        num.className = 'page-num';
+        num.innerText = idx + 1;
+
+        if (idx === currentQuestionIndex) {
+            num.classList.add('active'); // Кўк фаол ранг
+        } 
+        else if (userAnswers[idx] && userAnswers[idx].choice !== null) {
+            if (userAnswers[idx].isCorrect) {
+                num.classList.add('answered'); // Тўғри бўлса - Яшил
+            } else {
+                num.classList.add('wrong');    // Хато бўлса - Қизил
+            }
+        }
+
+        num.onclick = () => {
+            currentQuestionIndex = idx;
+            tempSelection = userAnswers[idx] ? userAnswers[idx].choice : null;
+            displayQuestion();
+            buildPagination();
+        };
+        pag.appendChild(num);
+    });
 }
 
+// Натижани чиқариш
 function showResults() {
     clearInterval(timerInterval);
-    document.getElementById('quiz-content').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'block';
 
     const correct = userAnswers.filter(ans => ans.isCorrect).length;
@@ -202,15 +204,27 @@ function showResults() {
     document.getElementById('percentage').innerText = `Сиздин көрсөткүчүңүз: ${percent}%`;
 }
 
+// Қайтадан мавзу танлаш экранига қайтиш
+function showTopicsScreen() {
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('topics-screen').style.display = 'block';
+}
+
 function runTimer() {
+    clearInterval(timerInterval);
     timerInterval = setInterval(() => {
+        timeLeft--;
         let min = Math.floor(timeLeft / 60);
         let sec = timeLeft % 60;
-        document.getElementById('timer').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        if (timeLeft <= 0) { 
+        if (sec < 10) sec = '0' + sec;
+        
+        document.getElementById('timer').innerText = `${min}:${sec}`;
+
+        if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            showResults(); 
+            alert("Убакыт бүттү!");
+            showResults();
         }
-        timeLeft--;
     }, 1000);
 }

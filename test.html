@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Жогорку Математика Тест Системасы</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root { --primary: #1e4ea1; --accent: #3498db; --bg: #f4f7f6; --text: #2c3e50; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* ЖОГОРКУ ПАНЕЛЬ */
+        .header-panel { background: var(--primary); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-panel h1 { margin: 0; font-size: 1.4rem; }
+        .back-home { color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; transition: 0.3s; font-size: 14px; }
+        .back-home:hover { background: rgba(255,255,255,0.3); }
+
+        /* АСОСИЙ КОНТЕНТ БЛОКИ */
+        .main-wrapper { display: flex; justify-content: center; align-items: flex-start; flex: 1; padding: 40px 20px; }
+        .quiz-card { background: white; border-radius: 12px; padding: 40px; width: 100%; max-width: 800px; box-shadow: 0 4px 25px rgba(0,0,0,0.06); }
+        
+        /* 1-ЭКРАН: ТЕМАЛАР СЕТКАСИ */
+        .topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 15px; margin-top: 20px; }
+        .topic-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; text-align: center; font-weight: 600; color: var(--text); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+        .topic-box:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(30,78,161,0.2); border-color: var(--primary); }
+
+        /* 2-ЭКРАН: ТЕСТ ИШЛЕСЕ */
+        .top-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f4f7f6; }
+        #timer { font-size: 1.3rem; font-weight: bold; color: #e74c3c; background: #fdf2f2; padding: 5px 15px; border-radius: 20px; }
+        #current-topic-title { font-weight: bold; color: var(--text); font-size: 1.1rem; }
+        
+        #question-text { text-align: left; font-size: 1.2rem; color: #333; line-height: 1.5; margin-bottom: 25px; }
+        .options { display: flex; flex-direction: column; gap: 12px; margin: 25px 0; }
+        .option-btn { padding: 15px 20px; text-align: left; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .option-btn:hover { background: #f1f3f5; border-color: #ced4da; }
+        .option-btn.selected { background: #e3faf2; border-color: #2ecc71; color: #27ae60; font-weight: bold; }
+        
+        .bottom-panel { display: flex; justify-content: flex-end; margin-top: 25px; }
+        #submit-btn { background: #2ecc71; color: white; border: none; padding: 12px 35px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* ПАГИНАЦИЯ (ДОИРАЧАЛАР СТИЛИ) */
+        .number-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 35px; flex-wrap: wrap; border-top: 2px solid #f4f7f6; padding-top: 20px; }
+        .page-num { width: 38px; height: 38px; border-radius: 50%; border: 1px solid #dee2e6; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.95rem; background: white; transition: 0.2s; }
+        
+        /* Фаол (ҳозирги турган) савол */
+        .page-num.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+        
+        /* ТЎҒРИ жавоб белгиланганда чиқадиган яшил доирача */
+        .page-num.answered { background: #e3faf2; color: #2ecc71; border-color: #2ecc71; font-weight: bold; }
+        
+        /* ХАТО жавоб белгиланганда чиқадиган қизил доирача */
+        .page-num.wrong { background: #fdf2f2; color: #e74c3c; border-color: #e74c3c; font-weight: bold; }
+
+        .center-screen { text-align: center; padding: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="header-panel">
+        <h1>КРСУ | Онлайн Тест Системасы</h1>
+        <a href="../index.html" class="back-home">← Бош саҳифага қайтиш</a>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="quiz-card">
+            
+            <div id="topics-screen">
+                <h2 style="color: var(--primary); margin-top: 0; text-align: center;">Математикадан тест мавзусини тандаңыз</h2>
+                <p style="color: #7f8c8d; text-align: center; margin-bottom: 30px;">Тестти баштоо үчүн төмөндөгү темалардын бирин тандаңыз. Ар бир темага 20 мүнөт убакыт берилет.</p>
+                <div id="topics-container" class="topics-grid">
+                    </div>
+            </div>
+
+            <div id="quiz-screen" style="display: none;">
+                <div class="top-info">
+                    <div id="current-topic-title">Мавзу номи</div>
+                    <div id="timer">20:00</div>
+                </div>
+                
+                <h2 id="question-text">Савол юкланмоқда...</h2>
+                <div id="options-container" class="options"></div>
+                
+                <div class="bottom-panel">
+                    <button id="submit-btn" onclick="checkAnswer()" disabled>Жооб берүү</button>
+                </div>
+                
+                <div id="pagination" class="number-pagination"></div>
+            </div>
+
+            <div id="result-screen" class="center-screen" style="display: none;">
+                <h2 style="color: #2ecc71; font-size: 2rem;">Тест аяктады!</h2>
+                <div style="font-size: 1.6rem; margin: 25px 0;">
+                    Туура жооптор: <span id="correct-count" style="color: #2ecc71; font-weight: bold;">0</span> / <span id="total-count">0</span>
+                </div>
+                <p id="percentage" style="font-size: 1.2rem; color: #7f8c8d; font-weight: 500;"></p>
+                <button class="option-btn" style="background: var(--primary); color: white; border: none; padding: 12px 40px; border-radius: 6px; font-weight: bold; margin-top: 20px; display: inline-block; text-align: center;" onclick="showTopicsScreen()">Башка тема тандоо</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

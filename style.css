@@ -292,3 +292,33 @@ body {
 .social-links { display: flex; flex-direction: column; gap: 12px; }
 .social-links a { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: color 0.2s; }
 .social-links a:hover { color: #ffffff; text-decoration: underline; }
+
+/* Энг муҳим: Барча блокларни телефон энига мослаш */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    overflow-x: hidden; /* Ён томонга сурилиб кетишнинг олдини олиш */
+}
+
+body {
+    width: 100vw !important;
+    overflow-x: hidden;
+}
+
+/* Мобил экран учун барча элементларни устун қилиш */
+@media screen and (max-width: 768px) {
+    .container, .header, .main, .footer, .content, .section {
+        width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 10px !important;
+    }
+
+    /* Расмларни экранга сиғдириш */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}

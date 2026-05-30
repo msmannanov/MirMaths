@@ -335,4 +335,30 @@ body {
         max-width: 100% !important;
         height: auto !important;
     }
+}/* Бургер тугмаси услуби */
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .menu-toggle {
+        display: block; /* Телефонда кўрсатиш */
+    }
+
+    .sub-menu {
+        display: none; /* Дастлаб яшириш */
+        flex-direction: column;
+        width: 100%;
+        background: #2a5298;
+        padding: 10px;
+    }
+
+    .sub-menu.active {
+        display: flex; /* Тугма босилганда очиш */
+    }
 }

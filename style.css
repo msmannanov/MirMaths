@@ -346,27 +346,20 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    .menu-toggle {
-        display: block !important;
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1001;
+    /* Менюни яшириш */
+    .sub-menu {
+        display: none !important; /* Дастлаб кўринмайди */
     }
 
-    .sub-menu {
-        display: none !important;
+    /* Меню очилганда чиқиши учун */
+    .sub-menu.active {
+        display: flex !important;
         flex-direction: column !important;
         position: absolute;
         top: 60px;
         left: 0;
         width: 100%;
         background: #2a5298;
-        padding: 20px;
-        z-index: 1000;
-    }
-
-    .sub-menu.active {
-        display: flex !important;
+        z-index: 9999;
     }
 }

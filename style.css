@@ -347,18 +347,26 @@ body {
 
 @media screen and (max-width: 768px) {
     .menu-toggle {
-        display: block; /* Телефонда кўрсатиш */
+        display: block !important;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
     }
 
     .sub-menu {
-        display: none; /* Дастлаб яшириш */
-        flex-direction: column;
+        display: none !important;
+        flex-direction: column !important;
+        position: absolute;
+        top: 60px;
+        left: 0;
         width: 100%;
         background: #2a5298;
-        padding: 10px;
+        padding: 20px;
+        z-index: 1000;
     }
 
     .sub-menu.active {
-        display: flex; /* Тугма босилганда очиш */
+        display: flex !important;
     }
 }

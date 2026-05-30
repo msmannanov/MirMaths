@@ -293,9 +293,9 @@ body {
 .social-links a { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: color 0.2s; }
 .social-links a:hover { color: #ffffff; text-decoration: underline; }
 
-/* МОБИЛ ТЕЛЕФОНЛАР УЧУН МАЖБУРИЙ СОЗЛАМА */
-@media only screen and (max-width: 850px) {
-    /* 1. Сайтни ёнга сурилиб кетишини 100% тўхтатиш */
+/* --- МОБИЛ ЭКРАН УЧУН ЯКУНИЙ СОЗЛАМА (Footer ва барча блоклар учун) --- */
+@media screen and (max-width: 900px) {
+    /* 1. Бутун сайт энини телефон экранига тенглаштириш */
     body, html {
         width: 100% !important;
         overflow-x: hidden !important;
@@ -303,26 +303,34 @@ body {
         padding: 0 !important;
     }
 
-    /* 2. Барча "1200px" ёки катта ўлчамли блокларни телефонга сиғдириш */
-    div, section, nav, footer, .container, .news-grid, .info-grid, .cabinet-container {
+    /* 2. Сайтдаги барча катта блокларни (container, footer, header) мобил экранга сиғдириш */
+    div, section, header, footer, .footer-container, .krsu-header, .main-nav, .news-grid, .info-grid {
         width: 100% !important;
         max-width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-        padding-left: 5px !important;
-        padding-right: 5px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
         box-sizing: border-box !important;
     }
 
-    /* 3. Меню ва қаторларни устун ҳолига келтириш */
-    .krsu-header, .main-nav, .top-bar, .sub-menu, .news-grid, .info-grid {
+    /* 3. Footer қисмини тўғрилаш */
+    .footer-container {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 10px !important;
+        text-align: center !important;
+        gap: 20px !important;
     }
 
-    /* 4. Расмлар экрандан чиқиб кетмаслиги учун */
+    /* 4. Барча ёнма-ён турган блокларни вертикал устун ҳолига келтириш */
+    .row, .news-grid, .info-grid, .sub-menu {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    /* 5. Расмлар экрандан чиқиб кетмаслиги учун */
     img {
         max-width: 100% !important;
         height: auto !important;

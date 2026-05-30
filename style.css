@@ -293,56 +293,38 @@ body {
 .social-links a { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: color 0.2s; }
 .social-links a:hover { color: #ffffff; text-decoration: underline; }
 
-/* Мобил телефонлар учун махсус мослашув (тузилмани бузмайди) */
-@media screen and (max-width: 768px) {
-    /* 1. Сайтни ёнга сурилиб кетишидан тўхтатиш */
-    body {
-        overflow-x: hidden;
-        width: 100%;
+/* МОБИЛ ТЕЛЕФОНЛАР УЧУН МАЖБУРИЙ СОЗЛАМА */
+@media only screen and (max-width: 850px) {
+    /* 1. Сайтни ёнга сурилиб кетишини 100% тўхтатиш */
+    body, html {
+        width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* 2. Барча кенг блокларни 100% га ўтказиш */
-    .krsu-header, .bottom-nav, .news-section, .info-blocks-section, .cabinet-section, .krsu-footer-panel {
-        padding: 10px !important;
+    /* 2. Барча "1200px" ёки катта ўлчамли блокларни телефонга сиғдириш */
+    div, section, nav, footer, .container, .news-grid, .info-grid, .cabinet-container {
         width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
         box-sizing: border-box !important;
     }
 
-    /* 3. Менюларни вертикал ҳолатга келтириш */
-    .primary-menu, .sub-menu {
+    /* 3. Меню ва қаторларни устун ҳолига келтириш */
+    .krsu-header, .main-nav, .top-bar, .sub-menu, .news-grid, .info-grid {
+        display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         gap: 10px !important;
     }
 
-    /* 4. Сеткаларни (grid/flex) бир устунга ўтказиш */
-    .news-grid, .info-grid, .cabinet-container {
-        grid-template-columns: 1fr !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 15px !important;
-    }
-
-    /* 5. Мега-меню ва бошқа катта блокларни телефон учун яшириш ёки мослаш */
-    .mega-menu {
-        display: none !important; /* Телефонда мега-менюни яшириб туриш хавфсизроқ */
-    }
-
-    /* 6. Расмларни экрандан чиқиб кетмаслиги учун */
+    /* 4. Расмлар экрандан чиқиб кетмаслиги учун */
     img {
         max-width: 100% !important;
         height: auto !important;
-    }
-
-    /* 7. Слайдерни кичрайтириш */
-    .hero-slider {
-        height: auto !important;
-        min-height: 200px !important;
-    }
-    .slider-image {
-        display: none !important;
-    }
-    .slider-title {
-        font-size: 20px !important;
     }
 }

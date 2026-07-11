@@ -1,368 +1,119 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="RU">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KRSU Web Model</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн тест</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root { --primary: #1e4ea1; --accent: #3498db; --bg: #f4f7f6; --text: #2c3e50; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .header-panel { background: var(--primary); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-panel h1 { margin: 0; font-size: 1.4rem; }
+        .back-home { color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; transition: 0.3s; font-size: 14px; }
+        .back-home:hover { background: rgba(255,255,255,0.3); }
+
+        /* ОСНОВНОЙ КОНТЕНТ БЛОК */
+        .main-wrapper { display: flex; justify-content: center; align-items: flex-start; flex: 1; padding: 40px 20px; }
+        .quiz-card { background: white; border-radius: 12px; padding: 40px; width: 100%; max-width: 800px; box-shadow: 0 4px 25px rgba(0,0,0,0.06); }
+        
+        /* 1-ЭКРАН: СЕТКА ТЕМ */
+        .topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 15px; margin-top: 20px; }
+        .topic-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; text-align: center; font-weight: 600; color: var(--text); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+        .topic-box:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(30,78,161,0.2); border-color: var(--primary); }
+
+        /* 2-ЭКРАН: ВЫПОЛНЕНИЕ ТЕСТА */
+        .top-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f4f7f6; }
+        #timer { font-size: 1.3rem; font-weight: bold; color: #e74c3c; background: #fdf2f2; padding: 5px 15px; border-radius: 20px; }
+        #current-topic-title { font-weight: bold; color: var(--text); font-size: 1.1rem; }
+        
+        #question-text { text-align: left; font-size: 1.2rem; color: #333; line-height: 1.5; margin-bottom: 25px; }
+        .options { display: flex; flex-direction: column; gap: 12px; margin: 25px 0; }
+        .option-btn { padding: 15px 20px; text-align: left; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .option-btn:hover { background: #f1f3f5; border-color: #ced4da; }
+        .option-btn.selected { background: #e3faf2; border-color: #2ecc71; color: #27ae60; font-weight: bold; }
+        
+        .bottom-panel { display: flex; justify-content: flex-end; margin-top: 25px; }
+        #submit-btn { background: #2ecc71; color: white; border: none; padding: 12px 35px; font-size: 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* ПАГИНАЦИЯ (СТИЛЬ КРУЖКОВ) */
+        .number-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 35px; flex-wrap: wrap; border-top: 2px solid #f4f7f6; padding-top: 20px; }
+        .page-num { width: 38px; height: 38px; border-radius: 50%; border: 1px solid #dee2e6; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.95rem; background: white; transition: 0.2s; }
+        
+        /* АКТИВНЫЙ вопрос */
+        .page-num.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+        
+        /* КРУЖОК ПРАВИЛЬНОГО ответа */
+        .page-num.answered { background: #e3faf2; color: #2ecc71; border-color: #2ecc71; font-weight: bold; }
+        
+        /* КРУЖОК НЕПРАВИЛЬНОГО ответа */
+        .page-num.wrong { background: #fdf2f2; color: #e74c3c; border-color: #e74c3c; font-weight: bold; }
+
+        .center-screen { text-align: center; padding: 20px 0; }
+    </style>
 </head>
 <body>
 
-    <nav class="krsu-header">
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-        <div class="top-bar">
-            <div class="top-right-group">
-                <select class="lang-select">
-                    <option>RU</option>
-                    <option>KG</option>
-                    <option>UZ</option>
-                </select>
-                <a href="#" class="nav-btn">Личный кабинет 👤</a>
-                <a href="#" class="nav-btn">МФЦ 💼</a>
-                <button class="icon-btn">🔍</button>
-                <button class="icon-btn">👁️</button>
-            </div>
-        </div>
-
-        <div class="main-nav">
-            <div class="logo">
-                <img src="https://krsu.kg/themes/custom/krsu/logo.svg" alt="MirMaths Лого" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <span style="display:none; font-weight: bold; font-size: 24px; color: white;">MirMaths</span>
-            </div>
-            
-            <ul class="sub-menu">
-                <li><a href="#">Новости</a></li>
-                <li class="dropdown">
-                    <a href="#">Абитуриентам ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Пособия для подготовки к тестированию</a></li>
-                        <li><a href="#">Независимое тестирование школьников</a></li>
-                        <li><a href="#">Правила поведения участника Общереспубликанского тестирования</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Предметы ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Математика</a></li>
-                        <li><a href="#">Физика</a></li>
-                        <li><a href="#">Информатика</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Видеоуроки ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Видеоуроки по подготовке к ОРТ</a></li>
-                        <li><a href="#">Независимое тестирование школьников</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Библиотека ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Учебник</a></li>
-                        <li><a href="#">Видеоурок</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Онлайн тест ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="tests/test.html">Математика</a></li>
-                        <li><a href="tests/test.html">Физика</a></li>
-                        <li><a href="tests/test.html">Информатика</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Отчёты ▾</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Вопрос-ответ</a></li>
-                        <li><a href="#">Результаты</a></li>
-                        <li><a href="#">Регистрация на ОРТ</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <div class="bottom-nav">
-        <ul class="primary-menu">
-            <li><a href="#">Университет</a></li>
-            <li><a href="#">Образование</a></li>
-            <li><a href="#">Наука и инновации</a></li>
-            <li class="dropdown-mega">
-                <a href="#">Международная деятельность</a>
-                <div class="mega-menu">
-                    <div class="mega-column">
-                        <h3>Общая информация</h3>
-                        <ul>
-                            <li><a href="#">Нормативные документы</a></li>
-                            <li><a href="#">Информационный бюллетень</a></li>
-                        </ul>
-                    </div>
-                    <div class="mega-column">
-                        <h3>Структура управления</h3>
-                        <ul>
-                            <li><a href="#">Управление международных связей</a></li>
-                            <li><a href="#">Отдел международных связей</a></li>
-                            <li><a href="#">Отдел по работе с иностранными студентами</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </li>
-            <li><a href="#">Поступающим</a></li>
-            <li><a href="#">Обучающимся</a></li>
-            <li><a href="#">Факультеты</a></li>
-            <li><a href="#">Молодежь</a></li>
-        </ul>
+    <div class="header-panel">
+        <h1>MirMaths | Онлайн Тест </h1>
+        <a href="../index.php" class="back-home">← На главную </a>
     </div>
 
-    <section class="hero-slider">
-        <div class="slider-wrapper">
-            <div class="slide active">
-                <div class="slider-container">
-                    <div class="slider-content">
-                        <div class="slider-logo">
-                            <img src="https://krsu.kg/themes/custom/krsu/logo.svg" alt="КРСУ">
-                            <div class="logo-text"><h2>КРСУ</h2><p>КИРГИЗСКО-РОССИЙСКИЙ СЛАВЯНСКИЙ УНИВЕРСИТЕТ</p></div>
-                        </div>
-                        <h1 class="slider-title">Новый этап<br>трансформации</h1>
+    <div class="main-wrapper">
+        <div class="quiz-card">
+            
+            <div id="topics-screen">
+                <h2 style="color: var(--primary); margin-top: 0; text-align: center;">Выберите тему теста по математике</h2>
+                <p style="color: #7f8c8d; text-align: center; margin-bottom: 30px;">Для начала теста выберите одну из тем ниже. На каждую тему дается 20 минут.</p>
+                <div id="topics-container" class="topics-grid">
                     </div>
-                    <div class="slider-image">
-                        <img src="https://krsu.kg/sites/default/files/2024-03/banner-students.png" alt="Студенты">
-                    </div>
-                </div>
             </div>
 
-            <div class="slide">
-                <div class="slider-container">
-                    <div class="slider-content">
-                        <div class="slider-logo">
-                            <img src="https://krsu.kg/themes/custom/krsu/logo.svg" alt="КРСУ">
-                            <div class="logo-text"><h2>Прием 2026</h2><p>ГОРЯЧАЯ ЛИНИЯ ПРИЕМНОЙ КОМИССИИ</p></div>
-                        </div>
-                        <h1 class="slider-title" style="font-size: 45px;">+996 (777) 43-12-11</h1>
-                    </div>
-                    <div class="slider-image" style="opacity: 0.4;">
-                        <img src="https://krsu.kg/sites/default/files/2024-03/banner-students.png" alt="Студенты">
-                    </div>
+            <div id="quiz-screen" style="display: none;">
+                <div class="top-info">
+                    <div id="current-topic-title">Название темы</div>
+                    <div id="timer">20:00</div>
                 </div>
+                
+                <h2 id="question-text">Вопрос загружается...</h2>
+                <div id="options-container" class="options"></div>
+                
+                <div class="bottom-panel">
+                    <button id="submit-btn" onclick="checkAnswer()" disabled>Ответить</button>
+                </div>
+                
+                <div id="pagination" class="number-pagination"></div>
             </div>
+
+            <div id="result-screen" class="center-screen" style="display: none;">
+                <h2 style="color: #2ecc71; font-size: 2rem;">Тест завершен!</h2>
+                <div style="font-size: 1.6rem; margin: 25px 0;">
+                    Правильных ответов: <span id="correct-count" style="color: #2ecc71; font-weight: bold;">0</span> / <span id="total-count">0</span>
+                </div>
+                <p id="percentage" style="font-size: 1.2rem; color: #7f8c8d; font-weight: 500;"></p>
+                <button class="option-btn" style="background: var(--primary); color: white; border: none; padding: 12px 40px; border-radius: 6px; font-weight: bold; margin-top: 20px; display: inline-block; text-align: center;" onclick="showTopicsScreen()">Выбрать другую тему</button>
+            </div>
+
         </div>
+    </div>
 
-        <div class="slider-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-        </div>
-        <button class="slider-arrow prev-arrow">‹</button>
-        <button class="slider-arrow next-arrow">›</button>
-    </section>
-
-    <section class="news-section">
-        <div class="news-container">
-            <div class="news-header">
-                <h2>Новости</h2>
-                <a href="#" class="all-news-btn">Все новости <span class="arrow-icon">›</span></a>
-            </div>
-
-            <div class="news-tabs">
-                <button class="tab-btn active">Новости</button>
-                <button class="tab-btn">Объявления</button>
-                <button class="tab-btn">Университет в СМИ</button>
-                <button class="tab-btn">Периодические издания</button>
-            </div>
-
-            <div class="news-grid">
-                <div class="news-card">
-                    <div class="card-image">
-                        <img src="https://krsu.kg/sites/default/files/styles/news_main/public/2024-03/news1.jpg" alt="Новости">
-                    </div>
-                    <div class="card-body">
-                        <span class="card-date">28.05.2026</span>
-                        <h3 class="card-title">Русский язык в КРСУ: новый вектор развития гуманитарного сотрудничества</h3>
-                    </div>
-                </div>
-
-                <div class="news-card">
-                    <div class="card-image">
-                        <img src="https://krsu.kg/sites/default/files/styles/news_main/public/2024-03/news2.jpg" alt="Новости">
-                    </div>
-                    <div class="card-body">
-                        <span class="card-date">25.05.2026</span>
-                        <h3 class="card-title">Студенты КРСУ заняли призовые места на международной олимпиаде</h3>
-                    </div>
-                </div>
-
-                <div class="news-card">
-                    <div class="card-image">
-                        <img src="https://krsu.kg/sites/default/files/styles/news_main/public/2024-03/news3.jpg" alt="Новости">
-                    </div>
-                    <div class="card-body">
-                        <span class="card-date">20.05.2026</span>
-                        <h3 class="card-title">В университете прошла научно-практическая конференция ученых</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="info-blocks-section">
-        <div class="info-container">
-            <div class="info-grid">
-                <div class="info-box blue-box">
-                    <div class="info-box-content">
-                        <h3>Поступление в 2026</h3>
-                    </div>
-                    <div class="info-box-icon">
-                        <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M4.4 11.23l7.6 4.15 7.6-4.15L12 15.38l-7.6-4.15z M12 18c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z"/></svg>
-                    </div>
-                </div>
-
-                <div class="info-box white-box">
-                    <div class="info-box-content">
-                        <h3>Образовательные программы и направления подготовки</h3>
-                    </div>
-                    <div class="info-box-icon">
-                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    </div>
-                </div>
-
-                <div class="info-box white-box">
-                    <div class="info-box-content">
-                        <h3>Факультет</h3>
-                    </div>
-                    <div class="info-box-icon">
-                        <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"/></svg>
-                    </div>
-                </div>
-
-                <div class="info-box white-box wide-box">
-                    <div class="info-box-content">
-                        <h3>Программа</h3>
-                    </div>
-                    <div class="info-box-icon">
-                        <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.1-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.35-.75-2-1zm-1 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-3.45.3-4.5 1V7c1.05-.7 2.8-1 4.5-1 1.2 0 2.4.15 3.5.5v11z"/></svg>
-                    </div>
-                </div>
-
-                <div class="info-box white-box wide-box-2">
-                    <div class="info-box-content">
-                        <h3>Молодежная и информационная политика</h3>
-                    </div>
-                    <div class="info-box-icon">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="cabinet-section">
-        <div class="cabinet-container">
-            <div class="cabinet-card">
-                <div class="cabinet-card-content">
-                    <h2>Личный кабинет студента</h2>
-                    <a href="#" class="cabinet-login-link">
-                        <span>Войти</span>
-                        <div class="cabinet-arrow-circle">
-                            <svg viewBox="0 0 24 24"><path d="M8.59,16.59L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.59Z"/></svg>
-                        </div>
-                    </a>
-                </div>
-                <div class="cabinet-card-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
-                    </svg>
-                </div>
-            </div>
-
-            <div class="cabinet-card">
-                <div class="cabinet-card-content">
-                    <h2>Личный кабинет сотрудника</h2>
-                    <a href="#" class="cabinet-login-link">
-                        <span>Войти</span>
-                        <div class="cabinet-arrow-circle">
-                            <svg viewBox="0 0 24 24"><path d="M8.59,16.59L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.59Z"/></svg>
-                        </div>
-                    </a>
-                </div>
-                <div class="cabinet-card-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,12A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="krsu-footer-panel">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <img src="https://krsu.kg/themes/custom/krsu/logo.svg" alt="КРСУ Лого">
-                    <div class="footer-brand-text">
-                        <h3>КРСУ</h3>
-                        <p>Кыргызско-Российский<br>Славянский университет</p>
-                    </div>
-                </div>
-                <p class="footer-copyright">© 2026 ГОУ ВПО КРСУ</p>
-            </div>
-
-            <div class="footer-contacts">
-                <div class="contact-item">
-                    <span class="contact-icon">📍</span>
-                    <p>720000, Кыргызская Республика,<br>г. Бишкек, ул. Киевская, 44</p>
-                </div>
-                <div class="contact-item">
-                    <span class="contact-icon">📞</span>
-                    <p>+996 (312) 66-25-67<br>+996 (312) 43-12-11 (Приемная комиссия)</p>
-                </div>
-                <div class="contact-item">
-                    <span class="contact-icon">✉️</span>
-                    <p><a href="mailto:krsu@krsu.edu.kg">krsu@krsu.edu.kg</a></p>
-                </div>
-            </div>
-
-            <div class="footer-social">
-                <h4>Мы в соцсетях</h4>
-                <div class="social-links">
-                    <a href="#">✈️ Telegram</a>
-                    <a href="#">📺 YouTube</a>
-                    <a href="#">📸 Instagram</a>
-                    <a href="#">👥 Facebook</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        const nextBtn = document.querySelector('.next-arrow');
-        const prevBtn = document.querySelector('.prev-arrow');
-        let currentSlide = 0;
-
-        function showSlide(index) {
-            slides.forEach(s => s.classList.remove('active'));
-            dots.forEach(d => d.classList.remove('active'));
-            if(index >= slides.length) currentSlide = 0;
-            if(index < 0) currentSlide = slides.length - 1;
-            slides[currentSlide].classList.add('active');
-            dots[currentSlide].classList.add('active');
-        }
-
-        nextBtn.addEventListener('click', () => { currentSlide++; showSlide(currentSlide); });
-        prevBtn.addEventListener('click', () => { currentSlide--; showSlide(currentSlide); });
-        dots.forEach((dot, i) => dot.addEventListener('click', () => { currentSlide = i; showSlide(currentSlide); }));
-
-        setInterval(() => { currentSlide++; showSlide(currentSlide); }, 5000);
-
-        const grid = document.querySelector('.news-grid');
-        setInterval(() => {
-            const firstCard = grid.querySelector('.news-card');
-            grid.style.transition = 'transform 0.5s ease';
-            setTimeout(() => {
-                grid.appendChild(firstCard);
-            }, 100);
-        }, 6000);
-    </script>
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
